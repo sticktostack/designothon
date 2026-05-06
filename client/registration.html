@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registration – Design O Thon</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .hero {
+      background: linear-gradient(135deg, var(--surface) 0%, rgba(124,92,191,0.08) 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 48px 40px 40px;
+    }
+    .hero-inner { max-width: 1100px; margin: 0 auto; }
+    .hero h1 { font-size: 42px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; }
+    .hero h1 span { color: var(--accent); }
+    .hero p { color: var(--text-muted); font-size: 16px; max-width: 480px; }
+
+    .toolbar {
+      max-width: 1100px;
+      margin: 32px auto 24px;
+      padding: 0 40px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .toolbar .search-bar { flex: 1; min-width: 220px; }
+
+    .teams-grid {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 40px 60px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .team-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: border-color 0.2s, transform 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .team-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent2), var(--accent));
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .team-card:hover { border-color: rgba(255,255,255,0.14); transform: translateY(-2px); }
+    .team-card:hover::before { opacity: 1; }
+    .team-card.is-registered::before { opacity: 1; background: var(--success); }
+    .team-card.is-registered { border-color: rgba(0,212,170,0.15); }
+
+    .team-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .problem-select select { background: var(--bg); }
+
+    .reg-btn {
+      width: 100%;
+      justify-content: center;
+      padding: 12px;
+    }
+
+    .csv-section {
+      max-width: 1100px;
+      margin: 0 auto 8px;
+      padding: 0 40px;
+    }
+    .csv-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      flex-wrap: wrap;
+    }
+    .csv-box span { color: var(--text-muted); font-size: 14px; flex: 1; }
+    input[type="file"] { display: none; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="registration.html" class="nav-brand">Design<span>O</span>Thon</a>
+    <div class="nav-links">
+      <a href="registration.html" class="active">Registration</a>
+      <a href="admin.html">Admin</a>
+      <a href="projection.html">Live View</a>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-inner">
+      <h1>Team <span>Registration</span></h1>
+      <p>Fill in your team details to participate in Design O Thon. Find your team below and complete registration.</p>
+    </div>
+  </div>
+
+  <div class="csv-section">
+    <div class="csv-box">
+      <span>📁 Preload teams from CSV (teamName column required)</span>
+      <label for="csv-file" class="btn btn-ghost btn-sm" style="cursor:pointer;">Upload CSV</label>
+      <input type="file" id="csv-file" accept=".csv" onchange="uploadCSV(this)" />
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input type="text" class="form-control" id="search" placeholder="Search teams..." oninput="filterTeams()" />
+    </div>
+    <button class="btn btn-primary" onclick="openModal('add-modal')">+ Add Team</button>
+    <button class="btn btn-ghost btn-sm" onclick="loadTeams()">↻ Refresh</button>
+  </div>
+
+  <div class="teams-grid" id="teams-grid">
+    <div class="empty-state" style="grid-column:1/-1">
+      <div class="icon">⏳</div>
+      <p>Loading teams...</p>
+    </div>
+  </div>
+
+  <!-- Add Team Modal -->
+  <div class="modal-overlay" id="add-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Add New Team</span>
+        <button class="modal-close" onclick="closeModal('add-modal')">✕</button>
+      </div>
+      <div class="form-group">
+        <label>Team Name *</label>
+        <input type="text" class="form-control" id="new-team-name" placeholder="e.g. Team Phoenix" />
+      </div>
+      <div class="form-group">
+        <label>Leader Name</label>
+        <input type="text" class="form-control" id="new-leader" placeholder="Leader's full name" />
+      </div>
+      <div class="form-group">
+        <label>Member Name</label>
+        <input type="text" class="form-control" id="new-member" placeholder="Member's full name" />
+      </div>
+      <div class="form-group">
+        <label>Problem Statement</label>
+        <select class="form-control" id="new-problem">
+          <option value="">Select problem statement</option>
+          <option>UX for Healthcare Accessibility</option>
+          <option>Smart City Dashboard Design</option>
+          <option>E-Learning Platform Redesign</option>
+          <option>Sustainable Living App</option>
+          <option>Community Connect Platform</option>
+          <option>Mental Health Support Interface</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="addTeam()">Add Team</button>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+  <script src="js/utils.js"></script>
+  <script>
+    let allTeams = [];
+    const PROBLEMS = [
+      'UX for Healthcare Accessibility',
+      'Smart City Dashboard Design',
+      'E-Learning Platform Redesign',
+      'Sustainable Living App',
+      'Community Connect Platform',
+      'Mental Health Support Interface',
+      'Other'
+    ];
+
+    async function loadTeams() {
+      const res = await api('GET', '/teams');
+      if (!res.success) { toast(res.message, 'error'); return; }
+      allTeams = res.data;
+      renderTeams(allTeams);
+    }
+
+    function renderTeams(teams) {
+      const grid = document.getElementById('teams-grid');
+      if (!teams.length) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="icon">🏗️</div><p>No teams yet. Upload a CSV or add teams manually.</p></div>`;
+        return;
+      }
+      grid.innerHTML = teams.map(t => `
+        <div class="team-card ${t.isRegistered ? 'is-registered' : ''}" id="card-${t._id}">
+          <div class="team-name">
+            <span>${t.teamName}</span>
+            ${t.isRegistered ? '<span class="badge badge-registered">✓ Done</span>' : ''}
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>Leader Name</label>
+            <input type="text" class="form-control" id="leader-${t._id}" value="${t.leaderName}" placeholder="Leader's full name" ${t.isRegistered ? 'disabled' : ''} />
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>Member Name</label>
+            <input type="text" class="form-control" id="member-${t._id}" value="${t.memberName}" placeholder="Member's full name" ${t.isRegistered ? 'disabled' : ''} />
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>Problem Statement</label>
+            <select class="form-control" id="problem-${t._id}" ${t.isRegistered ? 'disabled' : ''}>
+              <option value="">Select problem statement</option>
+              ${PROBLEMS.map(p => `<option ${t.problemStatement === p ? 'selected' : ''}>${p}</option>`).join('')}
+            </select>
+          </div>
+          <button class="btn ${t.isRegistered ? 'btn-success' : 'btn-primary'} reg-btn"
+            id="btn-${t._id}"
+            ${t.isRegistered ? 'disabled' : ''}
+            onclick="registerTeam('${t._id}')">
+            ${t.isRegistered ? '✓ Registered' : 'Register Team'}
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function filterTeams() {
+      const q = document.getElementById('search').value.toLowerCase();
+      renderTeams(allTeams.filter(t => t.teamName.toLowerCase().includes(q) || (t.leaderName || '').toLowerCase().includes(q)));
+    }
+
+    async function registerTeam(id) {
+      const leaderName = document.getElementById(`leader-${id}`).value.trim();
+      const memberName = document.getElementById(`member-${id}`).value.trim();
+      const problemStatement = document.getElementById(`problem-${id}`).value;
+      if (!leaderName || !memberName || !problemStatement) {
+        toast('Please fill in all fields before registering.', 'error');
+        return;
+      }
+      const btn = document.getElementById(`btn-${id}`);
+      btn.disabled = true;
+      btn.textContent = 'Registering...';
+      const res = await api('POST', `/teams/register/${id}`, { leaderName, memberName, problemStatement });
+      if (res.success) {
+        toast('Team registered successfully! 🎉', 'success');
+        const idx = allTeams.findIndex(t => t._id === id);
+        if (idx !== -1) allTeams[idx] = res.data;
+        const card = document.getElementById(`card-${id}`);
+        card.classList.add('is-registered');
+        btn.textContent = '✓ Registered';
+        btn.className = 'btn btn-success reg-btn';
+        ['leader', 'member', 'problem'].forEach(f => {
+          const el = document.getElementById(`${f}-${id}`);
+          if (el) el.disabled = true;
+        });
+        const nameEl = card.querySelector('.team-name');
+        if (!nameEl.querySelector('.badge')) {
+          nameEl.insertAdjacentHTML('beforeend', '<span class="badge badge-registered">✓ Done</span>');
+        }
+      } else {
+        toast(res.message, 'error');
+        btn.disabled = false;
+        btn.textContent = 'Register Team';
+      }
+    }
+
+    async function addTeam() {
+      const teamName = document.getElementById('new-team-name').value.trim();
+      const leaderName = document.getElementById('new-leader').value.trim();
+      const memberName = document.getElementById('new-member').value.trim();
+      const problemStatement = document.getElementById('new-problem').value;
+      if (!teamName) { toast('Team name is required.', 'error'); return; }
+      const res = await api('POST', '/teams/add', { teamName, leaderName, memberName, problemStatement });
+      if (res.success) {
+        toast('Team added!', 'success');
+        closeModal('add-modal');
+        allTeams.unshift(res.data);
+        renderTeams(allTeams);
+        document.getElementById('new-team-name').value = '';
+        document.getElementById('new-leader').value = '';
+        document.getElementById('new-member').value = '';
+        document.getElementById('new-problem').value = '';
+      } else {
+        toast(res.message, 'error');
+      }
+    }
+
+    async function uploadCSV(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const formData = new FormData();
+      formData.append('csv', file);
+      try {
+        const res = await fetch('/api/teams/upload-csv', { method: 'POST', body: formData });
+        const json = await res.json();
+        if (json.success) { toast(json.message, 'success'); loadTeams(); }
+        else toast(json.message, 'error');
+      } catch (e) { toast(e.message, 'error'); }
+      input.value = '';
+    }
+
+    loadTeams();
+  </script>
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scoring Panel – Design O Thon</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .scoring-wrap { max-width: 900px; margin: 0 auto; padding: 40px; }
+
+    .welcome-banner {
+      background: linear-gradient(135deg, var(--surface) 0%, rgba(124,92,191,0.12) 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .welcome-avatar {
+      width: 64px; height: 64px;
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 30px;
+      flex-shrink: 0;
+    }
+    .welcome-text h2 { font-size: 26px; font-weight: 800; margin-bottom: 4px; }
+    .welcome-text p { color: var(--text-muted); }
+
+    .round-tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 4px; width: fit-content; margin-bottom: 28px; }
+    .round-tab { padding: 8px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text-muted); transition: all 0.2s; border: none; background: none; font-family: 'DM Sans', sans-serif; }
+    .round-tab.active { background: var(--accent); color: white; }
+    .round-tab:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .teams-list { display: flex; flex-direction: column; gap: 16px; }
+
+    .score-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .score-card.submitted { border-color: rgba(0,212,170,0.25); }
+    .score-card-header {
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+    }
+    .score-card-header:hover { background: rgba(255,255,255,0.02); }
+    .team-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 17px; }
+    .team-meta { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+    .expand-icon { font-size: 12px; color: var(--text-muted); transition: transform 0.2s; }
+    .score-card.open .expand-icon { transform: rotate(180deg); }
+
+    .score-body { display: none; padding: 0 24px 24px; }
+    .score-card.open .score-body { display: block; }
+
+    .criteria-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+    @media (max-width: 600px) { .criteria-grid { grid-template-columns: 1fr; } }
+
+    .criteria-item label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .criteria-item label .max { color: var(--text-muted); font-weight: 400; font-size: 11px; text-transform: none; letter-spacing: 0; }
+    .score-input {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .score-input:focus { border-color: var(--accent); }
+    .score-input:disabled { opacity: 0.5; background: var(--surface2); }
+
+    .total-display {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .total-label { font-size: 13px; color: var(--text-muted); }
+    .total-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--accent); }
+
+    .submit-btn { width: 100%; justify-content: center; padding: 14px; font-size: 15px; }
+    .submitted-badge { display: flex; align-items: center; gap: 8px; color: var(--success); font-weight: 600; font-size: 14px; padding: 12px 0; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="registration.html" class="nav-brand">Design<span>O</span>Thon</a>
+  </nav>
+
+  <div class="scoring-wrap">
+    <div id="loading" style="text-align:center;padding:80px 20px;">
+      <div class="spinner" style="margin:0 auto 16px;width:36px;height:36px;border-width:3px"></div>
+      <p style="color:var(--text-muted)">Loading your panel...</p>
+    </div>
+    <div id="error-state" style="display:none;" class="empty-state">
+      <div class="icon">🚫</div>
+      <p id="error-msg">Invalid or expired link.</p>
+    </div>
+    <div id="main" style="display:none;">
+      <div class="welcome-banner" id="welcome-banner">
+        <div class="welcome-avatar" id="welcome-avatar"></div>
+        <div class="welcome-text">
+          <h2 id="welcome-name">Welcome!</h2>
+          <p id="welcome-desc"></p>
+        </div>
+      </div>
+
+      <div class="round-tabs" id="round-tabs"></div>
+      <div class="teams-list" id="teams-list"></div>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+  <script src="js/utils.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get('userId');
+    const role = params.get('role');
+    let userData = null;
+    let currentRound = role === 'judge' ? 'round3' : 'round1';
+
+    const CRITERIA_LABELS_MENTOR = ['Creativity & Innovation', 'User Experience Design', 'Problem Understanding', 'Visual Aesthetics', 'Presentation Quality'];
+    const CRITERIA_LABELS_JUDGE = ['Innovation & Originality', 'Design Execution', 'User Research Depth', 'Feasibility & Impact', 'Pitch & Communication'];
+
+    async function init() {
+      if (!userId) { showError('No user ID provided in the link.'); return; }
+      const res = await api('GET', `/users/by-uid/${userId}`);
+      if (!res.success) { showError(res.message); return; }
+      userData = res.data;
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('main').style.display = 'block';
+      renderWelcome();
+      renderRoundTabs();
+      renderTeams();
+    }
+
+    function showError(msg) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('error-state').style.display = 'block';
+      document.getElementById('error-msg').textContent = msg;
+    }
+
+    function renderWelcome() {
+      const avatar = document.getElementById('welcome-avatar');
+      const isJudge = userData.role === 'judge';
+      avatar.textContent = isJudge ? '⚖️' : '👨‍🏫';
+      avatar.style.background = isJudge ? 'rgba(233,69,96,0.15)' : 'rgba(124,92,191,0.15)';
+      document.getElementById('welcome-name').textContent = `Hello, ${userData.name}! 👋`;
+      const assignedCount = isJudge ? (userData.assignedTeamsRound3 || []).length : (userData.assignedTeamsRound1 || []).length;
+      document.getElementById('welcome-desc').textContent = `You are a ${userData.role} from ${userData.organization || 'your organization'}. You have ${assignedCount} team(s) assigned to evaluate.`;
+    }
+
+    function renderRoundTabs() {
+      const tabs = document.getElementById('round-tabs');
+      if (userData.role === 'judge') {
+        tabs.innerHTML = `<button class="round-tab active">Round 3 – Judge (50 marks)</button>`;
+        return;
+      }
+      tabs.innerHTML = `
+        <button class="round-tab ${currentRound === 'round1' ? 'active' : ''}" onclick="switchRound('round1')">Round 1 (25 marks)</button>
+        <button class="round-tab ${currentRound === 'round2' ? 'active' : ''}" onclick="switchRound('round2')">Round 2 (25 marks)</button>
+      `;
+    }
+
+    function switchRound(round) {
+      currentRound = round;
+      renderRoundTabs();
+      renderTeams();
+    }
+
+    function getTeamsForRound() {
+      if (currentRound === 'round1') return userData.assignedTeamsRound1 || [];
+      if (currentRound === 'round2') return userData.assignedTeamsRound2 || [];
+      return userData.assignedTeamsRound3 || [];
+    }
+
+    function renderTeams() {
+      const list = document.getElementById('teams-list');
+      const teams = getTeamsForRound();
+      const maxPerCriteria = currentRound === 'round3' ? 10 : 5;
+      const maxTotal = currentRound === 'round3' ? 50 : 25;
+      const criteriaLabels = userData.role === 'judge' ? CRITERIA_LABELS_JUDGE : CRITERIA_LABELS_MENTOR;
+
+      if (!teams.length) {
+        list.innerHTML = `<div class="empty-state"><div class="icon">📋</div><p>No teams assigned yet for this round. Ask the admin to assign teams.</p></div>`;
+        return;
+      }
+
+      list.innerHTML = teams.map((t, i) => {
+        const roundKey = currentRound;
+        const s = t.scores[roundKey];
+        const isSubmitted = s && s.submitted;
+        const vals = isSubmitted ? [s.c1, s.c2, s.c3, s.c4, s.c5] : [0, 0, 0, 0, 0];
+
+        return `
+          <div class="score-card ${isSubmitted ? 'submitted' : ''} ${i === 0 ? 'open' : ''}" id="scard-${t._id}">
+            <div class="score-card-header" onclick="toggleCard('${t._id}')">
+              <div>
+                <div class="team-title">${t.teamName}</div>
+                <div class="team-meta">Leader: ${t.leaderName || '—'} · ${t.problemStatement || 'No problem selected'}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;">
+                ${isSubmitted ? `<span class="badge badge-success">✓ Scored ${s.total}/${maxTotal}</span>` : ''}
+                <span class="expand-icon">▼</span>
+              </div>
+            </div>
+            <div class="score-body">
+              <div class="criteria-grid">
+                ${criteriaLabels.map((label, ci) => `
+                  <div class="criteria-item">
+                    <label><span>${label}</span><span class="max">Max ${maxPerCriteria}</span></label>
+                    <input
+                      type="number" min="0" max="${maxPerCriteria}" step="0.5"
+                      class="score-input"
+                      id="score-${t._id}-c${ci+1}"
+                      value="${isSubmitted ? vals[ci] : ''}"
+                      placeholder="0"
+                      ${isSubmitted ? 'disabled' : ''}
+                      oninput="updateTotal('${t._id}', ${maxTotal})"
+                    />
+                  </div>
+                `).join('')}
+              </div>
+              <div class="total-display">
+                <span class="total-label">Total Score</span>
+                <span class="total-value" id="total-${t._id}">${isSubmitted ? s.total : '0'}<span style="font-size:14px;color:var(--text-muted)">/${maxTotal}</span></span>
+              </div>
+              ${isSubmitted
+                ? `<div class="submitted-badge">✅ Scores submitted successfully. Contact admin to edit.</div>`
+                : `<button class="btn btn-primary submit-btn" onclick="submitScores('${t._id}', '${currentRound}', ${maxPerCriteria})">Submit Scores</button>`
+              }
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleCard(teamId) {
+      const card = document.getElementById(`scard-${teamId}`);
+      card.classList.toggle('open');
+    }
+
+    function updateTotal(teamId, maxTotal) {
+      let total = 0;
+      for (let i = 1; i <= 5; i++) {
+        total += num(document.getElementById(`score-${teamId}-c${i}`)?.value || 0);
+      }
+      const el = document.getElementById(`total-${teamId}`);
+      if (el) el.innerHTML = `${total}<span style="font-size:14px;color:var(--text-muted)">/${maxTotal}</span>`;
+    }
+
+    async function submitScores(teamId, round, maxPerCriteria) {
+      const scores = {};
+      for (let i = 1; i <= 5; i++) {
+        const val = num(document.getElementById(`score-${teamId}-c${i}`)?.value || 0);
+        if (val < 0 || val > maxPerCriteria) {
+          toast(`Score for Criteria ${i} must be between 0 and ${maxPerCriteria}.`, 'error');
+          return;
+        }
+        scores[`c${i}`] = val;
+      }
+      const btn = document.querySelector(`#scard-${teamId} .submit-btn`);
+      if (btn) { btn.disabled = true; btn.textContent = 'Submitting...'; }
+      const res = await api('POST', `/teams/${teamId}/score`, { round, scores, userId });
+      if (res.success) {
+        toast('Scores submitted! ✅', 'success');
+        // Refresh user data and re-render
+        const refreshed = await api('GET', `/users/by-uid/${userId}`);
+        if (refreshed.success) { userData = refreshed.data; renderTeams(); }
+      } else {
+        toast(res.message, 'error');
+        if (btn) { btn.disabled = false; btn.textContent = 'Submit Scores'; }
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
