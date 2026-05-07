@@ -1,5 +1,5 @@
 // API base URL
-const API = '/api';
+const API = 'https://design-o-thon-api.onrender.com/api';
 
 // Show toast notification
 function toast(message, type = 'info') {

@@ -45,3 +45,7 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/design-o-th
     console.error('❌ MongoDB connection error:', err.message);
     process.exit(1);
   });
+
+app.listen(PORT, () => {
+  console.log(`Server running on ${PORT}`);
+})
