@@ -1,19 +1,23 @@
 const nodemailer = require('nodemailer');
 
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: parseInt(process.env.EMAIL_PORT) || 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
+function createTransporter() {
+  return nodemailer.createTransport({
+    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.EMAIL_PORT) || 587,
+    secure: false,
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    },
+    tls: {
+      rejectUnauthorized: false
+    }
+  });
+}
 
 async function sendScoringEmail(user) {
   const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
   const scoringLink = `${baseUrl}/scoring.html?userId=${user.userId}&role=${user.role}`;
-
   const roleLabel = user.role === 'mentor' ? 'Mentor' : 'Judge';
   const roundInfo = user.role === 'mentor'
     ? 'You will be evaluating teams in <strong>Round 1 and Round 2</strong> (25 marks each).'
@@ -64,12 +68,20 @@ async function sendScoringEmail(user) {
     </html>
   `;
 
-  await transporter.sendMail({
-    from: process.env.EMAIL_FROM || 'Design O Thon <noreply@designothon.com>',
+  const transporter = createTransporter();
+
+  // Verify connection before sending
+  await transporter.verify();
+
+  const info = await transporter.sendMail({
+    from: process.env.EMAIL_FROM || `Design O Thon <${process.env.EMAIL_USER}>`,
     to: user.email,
     subject: `🎨 Design O Thon – Your ${roleLabel} Scoring Access`,
     html
   });
+
+  console.log('Email sent:', info.messageId);
+  return info;
 }
 
 module.exports = { sendScoringEmail };
