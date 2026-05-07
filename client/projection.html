@@ -134,8 +134,9 @@
     }
     .sponsors{
       height: 80px ;
-      width: 100%;
+      width: 40%;
       /* background-color: #cd7f32; */
+      gap: 10px;
       display: flex;
       align-items: center;
       justify-content: space-evenly;
@@ -147,6 +148,7 @@
     }
     #bs-logo , #tk-logo{
       width: 210px;
+      color: #fff;
     }
 
     .lb-table { width: 100%; border-collapse: collapse; }
@@ -164,26 +166,32 @@
 <body>
   <nav class="nav">
     
-    <a href="registration.html" class="nav-brand">Design<span>O</span>Thon</a>
-    <div class="live-indicator">
-        <div class="live-dot"></div>
-        <span>Auto-refreshing every 15s</span>
+    <!-- <a href="registration.html" class="nav-brand">Design<span>O</span>Thon</a> -->
+    <div class="sponsors">
+      <img src="./images/LUSH_GREENS_GOLDEN_(1).png" alt="Lush Greens Golden logo">
+      <img id="tk-logo" src="./images/Thazah_Kitchen.png" alt="Thazah Kitchen logo">
+      <img src="./images/Figma.png" alt="Figma logo">
+      <img id="bs-logo" src="./images/Brand_School.png" alt="Brand School logo">
       </div>
-    <div class="nav-links">
-      <a href="registration.html">Registration</a>
+    <div class="live-indicator">
+        <!-- <div class="live-dot"></div>
+        <span>Auto-refreshing every 15s</span>
+      </div> -->
+    <div 
+   style="background-color: transparent;" class="nav-links">
+      <!-- <a href="registration.html">Registration</a>
       <a href="admin.html">Admin</a>
-      <a href="projection.html" class="active">Live View</a>
+      <a href="projection.html" class="active">Live View</a> -->
+
+      <button class="filter-btn r1 active" onclick="setFilter('round1')">📋 Round 1 – Mentors</button>
+      <button class="filter-btn r2" onclick="setFilter('round2')">📋 Round 2 – Mentors</button>
+      <button class="filter-btn r3" onclick="setFilter('round3')">🏆 Round 3 – Judges</button>
     </div>
   </nav>
 
   <div class="projection-wrap">
     <div class="hero-mini">
-      <div class="sponsors">
-        <img id="bs-logo" src="./images/Brand_School.png" alt="Brand School logo">
-        <img src="./images/LUSH_GREENS_GOLDEN_(1).png" alt="Lush Greens Golden logo">
-        <img id="tk-logo" src="./images/Thazah_Kitchen.png" alt="Thazah Kitchen logo">
-        <img src="./images/Figma.png" alt="Figma logo">
-      </div>
+      <a style="text-align: center; margin-left: 372px; font-size: 38px;" href="registration.html" class="nav-brand">Design<span>O</span>Thon</a>
       <div>
         <!-- <h1>Live <span>Tracking</span></h1> -->
         <!-- <p style="color:var(--text-muted);margin-top:4px;">Real-time progress of all evaluations</p> -->
@@ -191,17 +199,17 @@
       
     </div>
 
-    <div class="stats-grid" id="stats-grid">
+    <!-- <div class="stats-grid" id="stats-grid">
       <div class="stat-card"><div class="stat-num" id="s-total">—</div><div class="stat-label">Total Teams</div></div>
       <div class="stat-card"><div class="stat-num" id="s-r1" style="color:var(--mentor-color)">—</div><div class="stat-label">Round 1 Scored</div></div>
       <div class="stat-card"><div class="stat-num" id="s-r2" style="color:var(--warning)">—</div><div class="stat-label">Round 2 Scored</div></div>
       <div class="stat-card"><div class="stat-num" id="s-r3" style="color:var(--accent)">—</div><div class="stat-label">Round 3 Scored</div></div>
-    </div>
+    </div> -->
 
     <div class="round-filter">
-      <button class="filter-btn r1 active" onclick="setFilter('round1')">📋 Round 1 – Mentors</button>
+      <!-- <button class="filter-btn r1 active" onclick="setFilter('round1')">📋 Round 1 – Mentors</button>
       <button class="filter-btn r2" onclick="setFilter('round2')">📋 Round 2 – Mentors</button>
-      <button class="filter-btn r3" onclick="setFilter('round3')">🏆 Round 3 – Judges</button>
+      <button class="filter-btn r3" onclick="setFilter('round3')">🏆 Round 3 – Judges</button> -->
     </div>
 
     <div class="evaluators-grid" id="evaluators-grid">
