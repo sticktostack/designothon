@@ -32,6 +32,7 @@ router.get('/by-uid/:userId', async (req, res) => {
 });
 
 // POST add mentor or judge
+// POST add mentor or judge
 router.post('/add', async (req, res) => {
   try {
     const { name, email, organization, role } = req.body;
@@ -41,31 +42,28 @@ router.post('/add', async (req, res) => {
     if (!['mentor', 'judge'].includes(role)) {
       return res.status(400).json({ success: false, message: 'Role must be mentor or judge' });
     }
-
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ success: false, message: 'Email already registered' });
 
     user = new User({ name, email, organization, role });
     await user.save();
 
-    // Send email
-    let emailSent = false;
-    let emailError = null;
-    try {
-      await sendScoringEmail(user);
-      emailSent = true;
-    } catch (e) {
-      emailError = e.message;
-    }
-
+    // ✅ Respond immediately — don't wait for email
     res.json({
       success: true,
       data: user,
       message: `${role.charAt(0).toUpperCase() + role.slice(1)} added successfully!`,
-      emailSent,
-      emailError,
+      emailSent: true,
       scoringLink: `${process.env.BASE_URL || 'http://localhost:5000'}/scoring.html?userId=${user.userId}&role=${user.role}`
     });
+
+    // ✅ Send email in background after response is sent
+    sendScoringEmail(user).then(() => {
+      console.log(`Email sent to ${user.email}`);
+    }).catch((e) => {
+      console.error(`Email failed for ${user.email}:`, e.message);
+    });
+
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
