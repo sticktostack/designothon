@@ -96,6 +96,10 @@
     }
     .csv-box span { color: var(--text-muted); font-size: 14px; flex: 1; }
     input[type="file"] { display: none; }
+    .form-control,
+.form-control option {
+  font-size: 17px;
+}
   </style>
 </head>
 <body>
@@ -162,12 +166,12 @@
         <label>Problem Statement</label>
         <select class="form-control" id="new-problem">
           <option value="">Select problem statement</option>
-          <option>UX for Healthcare Accessibility</option>
+          <!-- <option>UX for Healthcare Accessibility</option>
           <option>Smart City Dashboard Design</option>
           <option>E-Learning Platform Redesign</option>
           <option>Sustainable Living App</option>
           <option>Community Connect Platform</option>
-          <option>Mental Health Support Interface</option>
+          <option>Mental Health Support Interface</option> -->
           <option>Other</option>
         </select>
       </div>
@@ -180,14 +184,26 @@
   <script>
     let allTeams = [];
     const PROBLEMS = [
-      'UX for Healthcare Accessibility',
-      'Smart City Dashboard Design',
-      'E-Learning Platform Redesign',
-      'Sustainable Living App',
-      'Community Connect Platform',
-      'Mental Health Support Interface',
-      'Other'
-    ];
+  "Design an AI-driven recommendation system that helps users decide what to order based on cravings, mood, or dietary preferences.",
+
+  "Design a mindfulness support system for students that helps them stay focused, reduce exam stress, and maintain productivity.",
+
+  "Design an AI-based academic and career recommendation platform that helps students choose the right career path based on their interests, skills, and academic performance.",
+
+  "Design a system that helps users book healthcare appointments intelligently based on symptoms, urgency, and availability.",
+
+  "Design an AI-powered urban navigation system that prioritizes personal safety and accessibility instead of only suggesting the fastest route.",
+
+  "Design a micro-credit and bookkeeping tool under 'Digital India' to help street vendors in the unorganized sector build a formal credit score.",
+
+  "Design a verified PG and hostel marketplace for Siliguri that ensures student safety, transparency, and trust in accommodation choices.",
+
+  "Design a civic engagement platform that allows Siliguri residents to vote on the allocation of ward-level development funds.",
+
+  "Design a hyperlocal fashion exchange platform for Gen-Z Indians to trade pre-loved ethnic wear during festive and wedding seasons.",
+
+  "Design a platform that connects retired professionals with local mentorship and part-time skill-sharing opportunities."
+];
 
     async function loadTeams() {
       const res = await api('GET', '/teams');
