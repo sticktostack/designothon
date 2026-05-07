@@ -46,6 +46,3 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/design-o-th
     process.exit(1);
   });
 
-app.listen(PORT, () => {
-  console.log(`Server running on ${PORT}`);
-})
