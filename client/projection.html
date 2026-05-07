@@ -65,17 +65,18 @@
     .filter-btn.r3.active { border-color: var(--accent); color: var(--accent); background: rgba(233,69,96,0.08); }
 
     .evaluators-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 20px;
-    }
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  width: 100%;
+}
 
-    .evaluator-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-    }
+.evaluator-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
     .ev-header {
       padding: 18px 20px;
       background: var(--surface2);
@@ -90,12 +91,12 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 18px;
     }
-    .ev-name { font-weight: 700; font-size: 15px; }
-    .ev-meta { font-size: 12px; color: var(--text-muted); }
+    .ev-name { font-weight: 700; font-size: 24px; }
+    .ev-meta { font-size: 17px; color: var(--text-muted); }
     .ev-progress {
       padding: 12px 20px;
       border-bottom: 1px solid var(--border);
-      font-size: 12px;
+      font-size: 20px;
       color: var(--text-muted);
     }
     .progress-bar { margin-top: 6px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
@@ -110,12 +111,12 @@
       justify-content: space-between;
       padding: 8px 0;
       border-bottom: 1px solid var(--border);
-      font-size: 13px;
+      font-size: 17px;
     }
     .ev-team-row:last-child { border-bottom: none; }
     .ev-team-name { font-weight: 500; }
     .status-dot {
-      width: 10px; height: 10px;
+      width: 14px; height: 14px;
       border-radius: 50%;
       flex-shrink: 0;
     }
